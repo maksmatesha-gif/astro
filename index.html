@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Персональный астрологический разбор</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ============ TOKENS — "Тёплый космос" ============ */
+:root{
+  --night:#241A22;
+  --night-2:#34252C;
+  --night-3:#412E36;
+  --night-line: rgba(244,238,227,0.14);
+  --paper:#F4EEE3;
+  --card:#FBF7EF;
+  --ink:#2B211F;
+  --ink-soft:#7A6B5F;
+  --gold:#D9A15B;
+  --gold-dark:#B87F3D;
+  --terracotta:#C1682E;
+  --dust:#C98F82;
+  --cream:#F4EEE3;
+  --radius:24px;
+  --radius-sm:14px;
+  --shadow: 0 24px 60px -30px rgba(36,26,34,0.5);
+  --maxw:1180px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:'Fraunces',serif;font-weight:500;letter-spacing:-0.01em;margin:0;color:inherit;}
+p{margin:0;}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.hand{font-family:'Caveat',cursive;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:0.14em;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:10px;color:var(--gold-dark);
+}
+.eyebrow.on-dark{color:var(--gold);}
+.eyebrow::before{content:"";width:20px;height:1.5px;background:currentColor;display:inline-block;opacity:0.7;}
+section{padding:100px 0;}
+@media(max-width:720px){section{padding:64px 0;}}
+:focus-visible{outline:2.5px solid var(--gold-dark);outline-offset:3px;border-radius:4px;}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}}
+
+.panel-dark{background:var(--night);color:var(--paper);}
+.panel-dark h2,.panel-dark h1,.panel-dark h3{color:var(--paper);}
+
+/* photo placeholder helper */
+.photo{position:relative;background-color:var(--night-2);background-size:cover;background-position:center;overflow:hidden;border-radius:var(--radius);}
+.panel-dark .photo{background-color:var(--night-3);}
+
+/* ============ HEADER ============ */
+header{position:sticky;top:0;z-index:60;background:rgba(36,26,34,0.86);backdrop-filter:blur(10px);border-bottom:1px solid rgba(244,238,227,0.1);}
+.nav{display:flex;align-items:center;justify-content:space-between;height:74px;}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:500;font-size:19px;color:var(--paper);}
+.logo-mark{width:28px;height:28px;position:relative;flex:none;}
+.logo-mark svg{width:100%;height:100%;}
+.navlinks{display:flex;gap:30px;font-size:14.5px;font-weight:500;color:rgba(244,238,227,0.65);}
+.navlinks a:hover{color:var(--gold);}
+@media(max-width:860px){.navlinks{display:none;}}
+.navcta{display:flex;gap:12px;align-items:center;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 26px;border-radius:100px;font-weight:600;font-size:15px;border:1.5px solid transparent;transition:transform .15s ease, background .15s ease, border-color .15s ease;white-space:nowrap;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--terracotta);color:#fff;}
+.btn-primary:hover{background:#a3551f;}
+.btn-gold{background:var(--gold);color:var(--night);}
+.btn-gold:hover{background:var(--gold-dark);color:#fff;}
+.btn-ghost-dark{background:transparent;color:var(--paper);border-color:rgba(244,238,227,0.28);}
+.btn-ghost-dark:hover{border-color:var(--gold);color:var(--gold);}
+.btn-ghost{background:transparent;color:var(--ink);border-color:rgba(43,33,31,0.18);}
+.btn-ghost:hover{border-color:var(--terracotta);color:var(--terracotta);}
+.btn-sm{padding:10px 18px;font-size:13.5px;}
+.btn-block{width:100%;}
+
+/* ============ HERO ============ */
+.hero{padding:76px 0 100px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background-color:var(--night-2);opacity:0.55;z-index:0;}
+.hero .wrap{position:relative;z-index:1;}
+.hero-grid{display:grid;grid-template-columns:0.95fr 1.05fr;gap:56px;align-items:center;}
+@media(max-width:980px){.hero-grid{grid-template-columns:1fr;gap:40px;}}
+.hero h1{font-size:clamp(32px,4.2vw,52px);line-height:1.08;margin:18px 0 20px;}
+.hero h1 em{font-style:italic;color:var(--gold);}
+.hero-sub{font-size:17px;color:rgba(244,238,227,0.72);max-width:460px;margin-bottom:8px;}
+
+/* signature wheel — ambient decoration behind hero content */
+.wheel-wrap{position:absolute;top:50%;right:-6%;transform:translateY(-50%);width:640px;height:640px;z-index:0;pointer-events:none;opacity:0.9;}
+.wheel{width:100%;height:100%;animation:spin 160s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@media(max-width:980px){.wheel-wrap{width:420px;height:420px;right:-18%;opacity:0.55;}}
+@media(max-width:620px){.wheel-wrap{width:320px;height:320px;right:-24%;top:30%;}}
+
+/* birth form */
+.birth-card{background:var(--night-2);border:1px solid rgba(244,238,227,0.1);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);}
+.birth-card h3{color:var(--paper);font-size:19px;margin-bottom:20px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:520px){.field-row{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:7px;}
+.field label{font-size:12.5px;color:rgba(244,238,227,0.55);font-family:'IBM Plex Mono',monospace;letter-spacing:0.03em;}
+.field input, .field select{
+  background:rgba(244,238,227,0.06);border:1.5px solid rgba(244,238,227,0.16);border-radius:10px;
+  padding:12px 14px;color:var(--paper);font-family:'Inter',sans-serif;font-size:14.5px;
+}
+.field input::placeholder{color:rgba(244,238,227,0.35);}
+.field input:focus, .field select:focus{border-color:var(--gold);outline:none;}
+.check-row{display:flex;align-items:center;gap:9px;margin:6px 0 20px;font-size:13.5px;color:rgba(244,238,227,0.62);}
+.check-row input{accent-color:var(--gold);}
+
+/* ============ TEASER RESULT ============ */
+.teaser-wrap{display:none;margin-top:26px;}
+.teaser-wrap.show{display:block;animation:fadein .5s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.teaser-card{background:var(--card);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);position:relative;}
+.teaser-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.teaser-sign{width:52px;height:52px;border-radius:50%;background:var(--night);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--gold);flex:none;}
+.teaser-title{font-size:18px;}
+.teaser-title .hand{font-size:22px;color:var(--terracotta);}
+.teaser-body p{color:var(--ink-soft);font-size:15px;margin-bottom:14px;}
+.teaser-locked{
+  position:relative;margin-top:18px;padding:22px;border-radius:var(--radius-sm);
+  background:linear-gradient(180deg, rgba(244,238,227,0) 0%, var(--paper) 85%), var(--card);
+  overflow:hidden;
+}
+.teaser-locked::before{content:"";position:absolute;inset:0;backdrop-filter:blur(3px);}
+.teaser-locked-inner{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.teaser-locked-text{font-size:14px;color:var(--ink-soft);max-width:340px;}
+.teaser-locked-text strong{color:var(--ink);}
+
+/* ============ SECTION HEAD ============ */
+.section-head{margin-bottom:44px;max-width:600px;}
+.section-head h2{font-size:clamp(26px,3vw,38px);margin-top:14px;}
+.section-head.center{margin-left:auto;margin-right:auto;text-align:center;}
+
+/* ============ WHAT'S INSIDE ============ */
+.inside-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:860px){.inside-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.inside-grid{grid-template-columns:1fr;}}
+.inside-card{background:var(--card);border-radius:var(--radius-sm);padding:26px 24px;box-shadow:0 1px 0 rgba(43,33,31,0.06);transition:transform .2s ease;}
+.inside-card:nth-child(2n){transform:rotate(-0.6deg);}
+.inside-card:nth-child(3n){transform:rotate(0.5deg);}
+.inside-card:hover{transform:translateY(-4px) rotate(0deg);}
+.inside-icon{width:40px;height:40px;border-radius:50%;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:16px;}
+.inside-card h3{font-size:16px;margin-bottom:8px;}
+.inside-card p{font-size:13.5px;color:var(--ink-soft);}
+
+/* ============ REPORT EXAMPLE ============ */
+.example-scroll{display:flex;gap:20px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x mandatory;}
+.example-scroll::-webkit-scrollbar{height:6px;}
+.example-scroll::-webkit-scrollbar-thumb{background:var(--dust);border-radius:100px;}
+.example-page{
+  flex:none;width:280px;scroll-snap-align:start;background:var(--card);border-radius:var(--radius-sm);
+  padding:24px;box-shadow:0 1px 0 rgba(43,33,31,0.06);
+}
+.example-page .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold-dark);text-transform:uppercase;letter-spacing:0.08em;}
+.example-page h3{font-size:16px;margin:10px 0 10px;}
+.example-page p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+.example-photo{height:150px;margin-bottom:16px;}
+
+/* ============ HOW IT WORKS ============ */
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+@media(max-width:900px){.process-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.process-grid{grid-template-columns:1fr;}}
+.process-step .n{font-family:'Fraunces',serif;font-style:italic;font-size:34px;color:var(--gold-dark);display:block;margin-bottom:12px;}
+.process-step h3{font-size:16.5px;margin-bottom:8px;}
+.process-step p{font-size:14px;color:var(--ink-soft);}
+.disclaimer{margin-top:28px;padding:18px 22px;border-radius:var(--radius-sm);background:#EFE2D4;color:#8A5A2B;font-size:13.5px;border-left:3px solid var(--terracotta);}
+
+/* ============ PRICING ============ */
+.price-panel{background:var(--night);color:var(--paper);border-radius:var(--radius);padding:52px;display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;align-items:center;}
+@media(max-width:860px){.price-panel{grid-template-columns:1fr;padding:32px;}}
+.price-panel .eyebrow{margin-bottom:14px;}
+.price-panel h2{color:var(--paper);font-size:clamp(24px,3vw,32px);margin-bottom:16px;}
+.price-list{list-style:none;padding:0;margin:20px 0 0;display:flex;flex-direction:column;gap:12px;}
+.price-list li{display:flex;gap:12px;font-size:14.5px;color:rgba(244,238,227,0.78);align-items:flex-start;}
+.price-list li::before{content:"✦";color:var(--gold);flex:none;margin-top:1px;}
+.price-box{background:var(--night-2);border:1px solid rgba(244,238,227,0.12);border-radius:var(--radius-sm);padding:32px;text-align:center;}
+.price-amount{font-family:'Fraunces',serif;font-size:46px;margin-bottom:4px;}
+.price-amount .cur{font-size:22px;color:var(--gold);}
+.price-note{font-size:13px;color:rgba(244,238,227,0.5);margin-bottom:24px;}
+
+/* ============ TRUST ============ */
+.trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
+@media(max-width:860px){.trust-grid{grid-template-columns:1fr;gap:28px;}}
+.trust-photo{height:380px;}
+.trust-list{list-style:none;padding:0;margin:22px 0 0;display:flex;flex-direction:column;gap:16px;}
+.trust-list li{display:flex;gap:14px;font-size:15px;align-items:flex-start;}
+.trust-list li .ix{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold-dark);background:var(--card);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px;}
+
+/* ============ FAQ ============ */
+.faq-list{max-width:740px;margin:0 auto;}
+.faq-item{border-bottom:1px solid rgba(43,33,31,0.12);}
+.faq-q{width:100%;background:none;border:none;text-align:left;padding:22px 4px;display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:16.5px;font-weight:600;color:var(--ink);}
+.faq-q .plus{font-family:'IBM Plex Mono',monospace;font-size:20px;color:var(--terracotta);transition:transform .25s ease;flex:none;}
+.faq-item[data-open="true"] .plus{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.faq-a p{padding:0 4px 22px;color:var(--ink-soft);font-size:15px;max-width:620px;}
+
+/* ============ FINAL CTA ============ */
+.final-cta{position:relative;border-radius:var(--radius);overflow:hidden;min-height:420px;display:flex;align-items:center;}
+.final-cta .photo{position:absolute;inset:0;border-radius:0;}
+.final-cta::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg, rgba(36,26,34,0.92) 0%, rgba(36,26,34,0.55) 55%, rgba(36,26,34,0.2) 100%);}
+.final-content{position:relative;z-index:2;padding:52px;color:var(--paper);max-width:520px;}
+.final-content h2{color:var(--paper);font-size:clamp(26px,3.4vw,38px);}
+.final-content p{color:rgba(244,238,227,0.72);margin:14px 0 26px;}
+
+/* ============ FOOTER ============ */
+footer{background:var(--night);color:rgba(244,238,227,0.6);padding:48px 0;}
+.foot-grid{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
+.foot-links{display:flex;gap:24px;font-size:14px;flex-wrap:wrap;}
+.foot-links a:hover{color:var(--gold);}
+.foot-copy{font-size:13px;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo">
+      <span class="logo-mark">
+        <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12.5" stroke="#D9A15B" stroke-width="1.4"/><circle cx="14" cy="14" r="2.4" fill="#D9A15B"/><path d="M14 1.5V6M14 22V26.5M1.5 14H6M22 14H26.5" stroke="#D9A15B" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </span>
+      Тёплый Космос
+    </div>
+    <nav class="navlinks">
+      <a href="#inside">Что внутри</a>
+      <a href="#example">Пример</a>
+      <a href="#price">Цена</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="navcta">
+      <a href="#hero-form" class="btn btn-gold btn-sm">Построить карту</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero panel-dark" id="hero-form">
+  <div class="hero-bg photo" data-label="images/hero-night.jpg"></div>
+  <div class="wheel-wrap" aria-hidden="true">
+    <svg class="wheel" viewBox="0 0 480 480" fill="none">
+      <circle cx="240" cy="240" r="230" stroke="#D9A15B" stroke-opacity="0.22" stroke-width="1"/>
+      <circle cx="240" cy="240" r="185" stroke="#D9A15B" stroke-opacity="0.3" stroke-width="1"/>
+      <circle cx="240" cy="240" r="140" stroke="#D9A15B" stroke-opacity="0.4" stroke-width="1"/>
+      <g stroke="#D9A15B" stroke-opacity="0.28" stroke-width="1">
+        <line x1="240" y1="10" x2="240" y2="470"/>
+        <line x1="10" y1="240" x2="470" y2="240"/>
+        <line x1="70" y1="70" x2="410" y2="410"/>
+        <line x1="410" y1="70" x2="70" y2="410"/>
+      </g>
+      <g font-family="IBM Plex Mono, monospace" font-size="15" fill="#D9A15B" fill-opacity="0.55" text-anchor="middle">
+        <text x="240" y="34">♈</text><text x="357" y="70">♉</text><text x="430" y="152">♊</text>
+        <text x="456" y="246">♋</text><text x="430" y="340">♌</text><text x="357" y="422">♍</text>
+        <text x="240" y="458">♎</text><text x="123" y="422">♏</text><text x="50" y="340">♐</text>
+        <text x="24" y="246">♑</text><text x="50" y="152">♒</text><text x="123" y="70">♓</text>
+      </g>
+      <circle cx="240" cy="240" r="3" fill="#D9A15B"/>
+    </svg>
+  </div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow on-dark">Разбор натальной карты</span>
+        <h1>Небо в момент вашего рождения — <em>расшифрованное просто</em></h1>
+        <p class="hero-sub">Введите дату, время и место рождения — и получите бесплатный фрагмент разбора прямо сейчас. Полный отчёт открывается отдельно.</p>
+      </div>
+      <div>
+        <div class="birth-card">
+          <h3>Введите данные рождения</h3>
+          <!-- ОБЁРТЫВАЕМ ПОЛЯ В ФОРМУ -->
+          <form id="birthForm" onsubmit="return false;">
+            <div class="field-row">
+              <div class="field">
+                <label for="bDate">Дата рождения</label>
+                <input type="date" id="bDate" required>
+              </div>
+              <div class="field">
+                <label for="bTime">Время рождения</label>
+                <input type="time" id="bTime">
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:6px;">
+              <label for="bPlace">Место рождения</label>
+              <input type="text" id="bPlace" placeholder="Город, страна">
+            </div>
+            <div class="check-row">
+              <input type="checkbox" id="noTime">
+              <label for="noTime">Не знаю точное время рождения</label>
+            </div>
+            <!-- Скрытые поля для Web3Forms -->
+            <input type="hidden" name="_access_key" value="YOUR_ACCESS_KEY">   <!-- Замените на ваш ключ -->
+            <input type="hidden" name="_to" value="Nasty_gll@mail.ru">
+            <input type="hidden" name="_subject" value="Новый запрос на разбор карты">
+            <input type="hidden" name="_captcha" value="false">
+
+            <button class="btn btn-primary btn-block" id="calcBtn">Построить карту</button>
+          </form>
+
+          <div class="teaser-wrap" id="teaserWrap">
+            <div class="teaser-card">
+              <div class="teaser-head">
+                <div class="teaser-sign" id="teaserSymbol">☉</div>
+                <div>
+                  <div class="teaser-title">Солнце в знаке <span class="hand" id="teaserSign">—</span></div>
+                </div>
+              </div>
+              <div class="teaser-body">
+                <p id="teaserText">—</p>
+              </div>
+              <div class="teaser-locked">
+                <div class="teaser-locked-inner">
+                  <div class="teaser-locked-text"><strong>Луна, асцендент, дома и текущие транзиты</strong> — в полном разборе, вместе с разделами про отношения, карьеру и ближайшие важные периоды.</div>
+                  <a href="#price" class="btn btn-primary btn-sm">Открыть полный разбор</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S INSIDE -->
+<section id="inside">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Полный отчёт</span>
+      <h2>Что внутри разбора</h2>
+    </div>
+    <div class="inside-grid">
+      <div class="inside-card"><div class="inside-icon">◐</div><h3>Личность и характер</h3><p>Солнце, Луна и асцендент — три опоры вашей натальной карты простыми словами.</p></div>
+      <div class="inside-card"><div class="inside-icon">✦</div><h3>Сильные и слабые стороны</h3><p>Где вам легко, а где стоит быть внимательнее — по аспектам планет.</p></div>
+      <div class="inside-card"><div class="inside-icon">♡</div><h3>Отношения и совместимость</h3><p>Венера и Марс в карте: как вы проявляетесь в близких отношениях.</p></div>
+      <div class="inside-card"><div class="inside-icon">◆</div><h3>Карьера и деньги</h3><p>Дома карьеры и финансов — к чему у вас предрасположенность.</p></div>
+      <div class="inside-card"><div class="inside-icon">☾</div><h3>Ближайшие периоды</h3><p>Текущие транзиты, которые влияют на вас в этом месяце.</p></div>
+      <div class="inside-card"><div class="inside-icon">✎</div><h3>Рекомендации</h3><p>Короткие практические заметки — на что обратить внимание сейчас.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT EXAMPLE -->
+<section id="example" style="background:var(--card);">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Как это выглядит</span>
+      <h2>Пример отчёта</h2>
+    </div>
+    <div class="example-scroll">
+      <div class="example-page">
+        <div class="example-photo photo" data-label="images/journal-flatlay.jpg"></div>
+        <span class="tag">01 · Личность</span>
+        <h3>Солнце в Весах</h3>
+        <p>Вы естественно ищете баланс и гармонию в отношениях с людьми, но иногда это даётся ценой собственных границ...</p>
+      </div>
+      <div class="example-page">
+        <div class="example-photo photo" data-label="images/hands-phone-stars.jpg"></div>
+        <span class="tag">02 · Отношения</span>
+        <h3>Венера в 7 доме</h3>
+        <p>Партнёрство занимает центральное место в вашей жизни — через отношения вы лучше узнаёте себя...</p>
+      </div>
+      <div class="example-page">
+        <div class="example-photo photo" data-label="images/candle-desk.jpg"></div>
+        <span class="tag">03 · Периоды</span>
+        <h3>Транзит Юпитера</h3>
+        <p>Ближайшие недели благоприятны для новых начинаний в карьере — подробности в полном отчёте...</p>
+      </div>
+      <div class="example-page">
+        <div class="example-photo photo" data-label="images/moon-window.jpg"></div>
+        <span class="tag">04 · Рекомендации</span>
+        <h3>На что обратить внимание</h3>
+        <p>Короткая практическая заметка на основе текущих транзитов относительно вашей натальной карты...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Как это устроено</span>
+      <h2>Как считается разбор</h2>
+    </div>
+    <div class="process-grid">
+      <div class="process-step"><span class="n">01</span><h3>Вы вводите данные</h3><p>Дата, время и место рождения.</p></div>
+      <div class="process-step"><span class="n">02</span><h3>Строим карту неба</h3><p>Точные координаты планет на момент вашего рождения.</p></div>
+      <div class="process-step"><span class="n">03</span><h3>Интерпретируем</h3><p>Переводим расположение планет в понятный текст.</p></div>
+      <div class="process-step"><span class="n">04</span><h3>Отправляем отчёт</h3><p>Разбор доступен на сайте и приходит на почту.</p></div>
+    </div>
+    <div class="disclaimer">Без точного времени рождения асцендент и дома карты будут приблизительными — это особенность метода, а не ошибка сервиса. Астрология — это язык для размышления о себе, а не гарантия будущих событий.</div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="price">
+  <div class="wrap">
+    <div class="price-panel">
+      <div>
+        <span class="eyebrow on-dark">Один понятный продукт</span>
+        <h2>Полный разбор натальной карты</h2>
+        <p style="color:rgba(244,238,227,0.7);font-size:15px;">Разовая оплата, без скрытой подписки. Доступ к отчёту остаётся у вас навсегда.</p>
+        <ul class="price-list">
+          <li>Полный текстовый разбор по всем разделам</li>
+          <li>PDF-версия на почту</li>
+          <li>Доступ на сайте в любое время</li>
+          <li>Возможность заказать разбор для партнёра или ребёнка</li>
+        </ul>
+      </div>
+      <div class="price-box">
+        <div class="price-amount"><span class="cur">от</span> 990 ₽</div>
+        <div class="price-note">Точная сумма зависит от полноты выбранного разбора</div>
+        <a href="#hero-form" class="btn btn-gold btn-block">Открыть полный разбор</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section>
+  <div class="wrap trust-grid">
+    <div class="photo trust-photo" data-label="images/journal-flatlay.jpg"></div>
+    <div>
+      <span class="eyebrow">Наш подход</span>
+      <h2 style="font-size:clamp(24px,3vw,32px);margin-top:14px;">Расчёт, а не гадание</h2>
+      <p style="color:var(--ink-soft);margin-top:14px;font-size:15px;">Мы используем точные астрономические данные на момент вашего рождения и признанные астрологические методики интерпретации.</p>
+      <ul class="trust-list">
+        <li><span class="ix">1</span>Расчёт по проверенным эфемеридам, без округлений</li>
+        <li><span class="ix">2</span>Интерпретация на основе классических astro-методик</li>
+        <li><span class="ix">3</span>Честно предупреждаем, где данные приблизительные</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background:var(--card);">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow">Вопросы</span>
+      <h2>Частые вопросы</h2>
+    </div>
+    <div class="faq-list" id="faqList">
+      <div class="faq-item" data-open="false">
+        <button class="faq-q">Нужно ли точное время рождения?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Желательно — оно нужно для расчёта асцендента и домов карты. Если точного времени нет, отметьте это в форме: мы построим карту без домов и асцендента, но остальной разбор останется точным.</p></div>
+      </div>
+      <div class="faq-item" data-open="false">
+        <button class="faq-q">Это гарантия будущих событий?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Нет. Астрология — это язык для размышления о себе и своих циклах, а не предсказание, которое обязательно сбудется. Мы честно об этом говорим.</p></div>
+      </div>
+      <div class="faq-item" data-open="false">
+        <button class="faq-q">Куда придёт отчёт?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Отчёт остаётся доступен на сайте в вашем аккаунте, а PDF-версию мы также отправляем на указанную почту.</p></div>
+      </div>
+      <div class="faq-item" data-open="false">
+        <button class="faq-q">Можно заказать разбор не на себя?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Да, можно указать данные партнёра, ребёнка или любого другого человека — с его согласия.</p></div>
+      </div>
+      <div class="faq-item" data-open="false">
+        <button class="faq-q">Чем это отличается от бесплатных гороскопов?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Общий гороскоп по знаку зодиака одинаков для миллионов людей. Наш разбор строится на точной карте неба конкретно на момент вашего рождения — Луна, асцендент и дома у всех разные.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section>
+  <div class="wrap">
+    <div class="final-cta">
+      <div class="photo" data-label="images/candle-desk.jpg"></div>
+      <div class="final-content">
+        <h2>Узнайте, что говорит небо о вас</h2>
+        <p>Бесплатный фрагмент разбора — сразу после ввода даты рождения.</p>
+        <a href="#hero-form" class="btn btn-gold">Построить карту</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="logo" style="color:var(--paper);">
+        <span class="logo-mark"><svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12.5" stroke="#D9A15B" stroke-width="1.4"/><circle cx="14" cy="14" r="2.4" fill="#D9A15B"/></svg></span>
+        Тёплый Космос
+      </div>
+      <div class="foot-links">
+        <a href="#inside">Что внутри</a>
+        <a href="#example">Пример</a>
+        <a href="#price">Цена</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+    <div class="foot-copy">© 2026 Тёплый Космос. Персональный астрологический разбор по дате рождения.</div>
+  </div>
+</footer>
+
+<script>
+// ---------- PHOTO LOADING ----------
+document.querySelectorAll('.photo[data-label]').forEach(el=>{
+  el.style.backgroundImage = `url('${el.getAttribute('data-label')}')`;
+});
+
+// ---------- ZODIAC ----------
+const SIGNS = [
+  {name:"Козерог", symbol:"♑", from:[12,22], to:[1,19], text:"Вы цените структуру и умеете идти к цели терпеливо, шаг за шагом — иногда в ущерб отдыху и спонтанности."},
+  {name:"Водолей", symbol:"♒", from:[1,20], to:[2,18], text:"Вам важна независимость и собственный взгляд на вещи — вы редко следуете за толпой просто потому, что так принято."},
+  {name:"Рыбы", symbol:"♓", from:[2,19], to:[3,20], text:"Вы тонко чувствуете настроение других людей и легко считываете то, что остаётся невысказанным."},
+  {name:"Овен", symbol:"♈", from:[3,21], to:[4,19], text:"Вы легко начинаете новое и умеете действовать быстро — сложнее даётся методичное доведение дел до конца."},
+  {name:"Телец", symbol:"♉", from:[4,20], to:[5,20], text:"Стабильность и комфорт для вас не роскошь, а необходимость — вы выстраиваете жизнь основательно, не спеша."},
+  {name:"Близнецы", symbol:"♊", from:[5,21], to:[6,20], text:"Вам нужно разнообразие тем и общения — однообразие утомляет вас быстрее, чем большинство людей."},
+  {name:"Рак", symbol:"♋", from:[6,21], to:[7,22], text:"Дом и близкие люди — ваша опора. Вы хорошо чувствуете эмоциональный климат вокруг себя."},
+  {name:"Лев", symbol:"♌", from:[7,23], to:[8,22], text:"Вам важно быть увиденным и оценённым по заслугам — это не тщеславие, а искренняя потребность в признании."},
+  {name:"Дева", symbol:"♍", from:[8,23], to:[9,22], text:"Вы замечаете детали, которые другие пропускают, и умеете доводить начатое до аккуратного завершения."},
+  {name:"Весы", symbol:"♎", from:[9,23], to:[10,22], text:"Вы естественно ищете баланс и гармонию в отношениях с людьми — иногда ценой собственных границ."},
+  {name:"Скорпион", symbol:"♏", from:[10,23], to:[11,21], text:"Вы редко относитесь к чему-то поверхностно — если вам что-то важно, вы идёте вглубь до конца."},
+  {name:"Стрелец", symbol:"♐", from:[11,22], to:[12,21], text:"Вам важно ощущение свободы и горизонта — рутина без смысла и перспективы истощает вас быстрее всего."}
+];
+function getSign(month, day){
+  for(const s of SIGNS){
+    const [fm,fd]=s.from,[tm,td]=s.to;
+    if(fm===tm){ if(month===fm && day>=fd && day<=td) return s; }
+    else if(fm>tm){ if((month===fm && day>=fd) || (month===tm && day<=td)) return s; }
+    else { if((month===fm && day>=fd) || (month===tm && day<=td) || (month>fm && month<tm)) return s; }
+  }
+  return SIGNS[0];
+}
+
+// ---------- ОТПРАВКА ДАННЫХ ----------
+document.getElementById('calcBtn').addEventListener('click', function(e){
+  e.preventDefault();
+
+  const dateVal = document.getElementById('bDate').value;
+  const timeVal = document.getElementById('bTime').value;
+  const placeVal = document.getElementById('bPlace').value.trim() || 'не указано';
+  const noTimeChecked = document.getElementById('noTime').checked;
+
+  if(!dateVal){
+    document.getElementById('bDate').focus();
+    return;
+  }
+
+  // ---- 1. ПОКАЗАТЬ TEASER (как было) ----
+  const d = new Date(dateVal + 'T00:00:00');
+  const sign = getSign(d.getMonth()+1, d.getDate());
+  document.getElementById('teaserSymbol').textContent = sign.symbol;
+  document.getElementById('teaserSign').textContent = sign.name;
+  document.getElementById('teaserText').textContent = sign.text;
+  const wrapEl = document.getElementById('teaserWrap');
+  wrapEl.classList.add('show');
+  wrapEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+  // ---- 2. ОТПРАВКА НА EMAIL через Web3Forms ----
+  const form = document.getElementById('birthForm');
+  const formData = new FormData(form);
+  // Добавляем дополнительные поля, которые не входят в форму
+  formData.append('Дата рождения', dateVal);
+  formData.append('Время рождения', timeVal || 'не указано');
+  formData.append('Место рождения', placeVal);
+  formData.append('Точное время известно?', noTimeChecked ? 'Нет' : 'Да');
+  formData.append('Знак зодиака (Солнце)', sign.name + ' ' + sign.symbol);
+
+  // Отправка через fetch
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    if (response.ok) {
+      console.log('✅ Данные успешно отправлены на email');
+      // Можно показать всплывающее уведомление пользователю
+      // alert('Ваши данные отправлены!');
+    } else {
+      console.warn('⚠️ Ошибка отправки на email:', response.status);
+    }
+  })
+  .catch(err => {
+    console.error('❌ Ошибка сети при отправке на email:', err);
+  });
+
+  // ---- 3. (ЗАГОТОВКА) ОТПРАВКА В TELEGRAM ----
+  // Раскомментируйте блок ниже и укажите свои BOT_TOKEN и CHAT_ID
+  /*
+  const BOT_TOKEN = 'ВАШ_ТОКЕН_БОТА';
+  const CHAT_ID = 'ВАШ_CHAT_ID';
+  const message = `Новый запрос на разбор карты:\n\nДата: ${dateVal}\nВремя: ${timeVal || 'не указано'}\nМесто: ${placeVal}\nЗнак: ${sign.name} ${sign.symbol}`;
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.ok) console.log('✅ Отправлено в Telegram');
+    else console.warn('⚠️ Ошибка Telegram:', data);
+  })
+  .catch(err => console.error('❌ Ошибка сети Telegram:', err));
+  */
+});
+
+// ---------- FAQ ACCORDION ----------
+document.querySelectorAll('.faq-item').forEach(item=>{
+  const q=item.querySelector('.faq-q'), a=item.querySelector('.faq-a');
+  q.addEventListener('click', ()=>{
+    const isOpen = item.getAttribute('data-open')==='true';
+    document.querySelectorAll('.faq-item').forEach(i=>{i.setAttribute('data-open','false');i.querySelector('.faq-a').style.maxHeight=null;});
+    if(!isOpen){ item.setAttribute('data-open','true'); a.style.maxHeight = a.scrollHeight+40+'px'; }
+  });
+});
+</script>
+
+</body>
+</html>
